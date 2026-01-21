@@ -3,19 +3,20 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tractor, ArrowLeft, Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { useToast } from '@/hooks/use-toast';
 
 const Auth = () => {
-  const { type, role } = useParams<{ type: 'login' | 'signup'; role: 'owner' | 'renter' | 'admin' }>();
+  const { type } = useParams<{ type: 'login' | 'signup' }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const isLogin = type === 'login';
-  const isAdmin = role === 'admin';
 
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<'renter' | 'owner'>('renter');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -46,26 +47,25 @@ const Auth = () => {
       return;
     }
 
+    const roleDisplayName = selectedRole === 'owner' ? 'Equipment Lister' : 'Renter';
+
     // Demo: Show success message
     toast({
       title: isLogin ? "Welcome back!" : "Account created!",
       description: isLogin 
-        ? `Logged in as ${role}. Redirecting to dashboard...` 
+        ? `Logged in as ${roleDisplayName}. Redirecting to dashboard...` 
         : "Your account has been created. Please log in.",
     });
 
     // Redirect after short delay
     setTimeout(() => {
       if (isLogin) {
-        navigate(`/dashboard/${role}`);
+        navigate(`/dashboard/${selectedRole}`);
       } else {
-        navigate(`/login/${role}`);
+        navigate('/login');
       }
     }, 1500);
   };
-
-  const roleDisplayName = role === 'owner' ? 'Equipment Owner' : role === 'renter' ? 'Renter' : 'Administrator';
-  const roleColor = role === 'admin' ? 'text-destructive' : 'text-primary';
 
   return (
     <div className="min-h-screen bg-background">
@@ -96,15 +96,55 @@ const Auth = () => {
                 {isLogin ? 'Welcome Back' : 'Create Account'}
               </h1>
               <p className="text-muted-foreground">
-                {isLogin ? 'Sign in as ' : 'Register as '}
-                <span className={`font-semibold ${roleColor}`}>{roleDisplayName}</span>
+                {isLogin ? 'Sign in to your account' : 'Join Agrirent today'}
               </p>
             </div>
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Role Selection */}
+              <div className="space-y-3">
+                <Label>I am a</Label>
+                <RadioGroup
+                  value={selectedRole}
+                  onValueChange={(value) => setSelectedRole(value as 'renter' | 'owner')}
+                  className="grid grid-cols-2 gap-3"
+                >
+                  <div>
+                    <RadioGroupItem
+                      value="renter"
+                      id="renter"
+                      className="peer sr-only"
+                    />
+                    <Label
+                      htmlFor="renter"
+                      className="flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all"
+                    >
+                      <User className="mb-2 h-6 w-6" />
+                      <span className="font-medium">Renter</span>
+                      <span className="text-xs text-muted-foreground">I want to rent</span>
+                    </Label>
+                  </div>
+                  <div>
+                    <RadioGroupItem
+                      value="owner"
+                      id="owner"
+                      className="peer sr-only"
+                    />
+                    <Label
+                      htmlFor="owner"
+                      className="flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all"
+                    >
+                      <Tractor className="mb-2 h-6 w-6" />
+                      <span className="font-medium">Equipment Lister</span>
+                      <span className="text-xs text-muted-foreground">I have equipment</span>
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
               {/* Name - only for signup */}
-              {!isLogin && !isAdmin && (
+              {!isLogin && (
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name</Label>
                   <div className="relative">
@@ -138,7 +178,7 @@ const Auth = () => {
               </div>
 
               {/* Phone - only for signup */}
-              {!isLogin && !isAdmin && (
+              {!isLogin && (
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
                   <div className="relative">
@@ -215,17 +255,15 @@ const Auth = () => {
             </form>
 
             {/* Toggle Link */}
-            {!isAdmin && (
-              <p className="text-center text-muted-foreground mt-6">
-                {isLogin ? "Don't have an account? " : "Already have an account? "}
-                <Link 
-                  to={isLogin ? `/signup/${role}` : `/login/${role}`}
-                  className="text-primary font-semibold hover:underline"
-                >
-                  {isLogin ? 'Sign up' : 'Sign in'}
-                </Link>
-              </p>
-            )}
+            <p className="text-center text-muted-foreground mt-6">
+              {isLogin ? "Don't have an account? " : "Already have an account? "}
+              <Link 
+                to={isLogin ? '/signup' : '/login'}
+                className="text-primary font-semibold hover:underline"
+              >
+                {isLogin ? 'Sign up' : 'Sign in'}
+              </Link>
+            </p>
           </div>
         </div>
       </main>
