@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,10 +10,10 @@ import Footer from '@/components/layout/Footer';
 import { useToast } from '@/hooks/use-toast';
 
 const Auth = () => {
-  const { type } = useParams<{ type: 'login' | 'signup' }>();
+  const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const isLogin = type === 'login';
+  const isLogin = location.pathname === '/login';
 
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<'renter' | 'owner'>('renter');
