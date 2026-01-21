@@ -1,22 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Tractor, ArrowLeft, Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
+import { Tractor, ArrowLeft, Eye, EyeOff, Mail, Lock, User, Phone, Loader2 } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Auth = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, role, loading: authLoading, signUp, signIn } = useAuth();
   const isLogin = location.pathname === '/login';
 
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<'renter' | 'owner'>('renter');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -25,8 +28,16 @@ const Auth = () => {
     confirmPassword: '',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && role && !authLoading) {
+      navigate(`/dashboard/${role}`);
+    }
+  }, [user, role, authLoading, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
     // Basic validation
     if (!formData.email || !formData.password) {
@@ -35,37 +46,105 @@ const Auth = () => {
         description: "Please fill in all required fields.",
         variant: "destructive",
       });
+      setIsSubmitting(false);
       return;
     }
 
-    if (!isLogin && formData.password !== formData.confirmPassword) {
+    if (!isLogin) {
+      if (!formData.name) {
+        toast({
+          title: "Error",
+          description: "Please enter your full name.",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (formData.password !== formData.confirmPassword) {
+        toast({
+          title: "Error",
+          description: "Passwords do not match.",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (formData.password.length < 6) {
+        toast({
+          title: "Error",
+          description: "Password must be at least 6 characters.",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
+    try {
+      if (isLogin) {
+        const { error } = await signIn(formData.email, formData.password);
+        
+        if (error) {
+          toast({
+            title: "Login Failed",
+            description: error.message || "Invalid email or password.",
+            variant: "destructive",
+          });
+          setIsSubmitting(false);
+          return;
+        }
+
+        toast({
+          title: "Welcome back!",
+          description: "Redirecting to dashboard...",
+        });
+      } else {
+        const { error } = await signUp(
+          formData.email, 
+          formData.password, 
+          formData.name, 
+          formData.phone, 
+          selectedRole
+        );
+        
+        if (error) {
+          let message = error.message;
+          if (error.message.includes('already registered')) {
+            message = 'This email is already registered. Please sign in instead.';
+          }
+          toast({
+            title: "Signup Failed",
+            description: message,
+            variant: "destructive",
+          });
+          setIsSubmitting(false);
+          return;
+        }
+
+        toast({
+          title: "Account created!",
+          description: "Redirecting to dashboard...",
+        });
+      }
+    } catch (error) {
       toast({
         title: "Error",
-        description: "Passwords do not match.",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
-      return;
+      setIsSubmitting(false);
     }
-
-    const roleDisplayName = selectedRole === 'owner' ? 'Equipment Lister' : 'Renter';
-
-    // Demo: Show success message
-    toast({
-      title: isLogin ? "Welcome back!" : "Account created!",
-      description: isLogin 
-        ? `Logged in as ${roleDisplayName}. Redirecting to dashboard...` 
-        : "Your account has been created. Please log in.",
-    });
-
-    // Redirect after short delay
-    setTimeout(() => {
-      if (isLogin) {
-        navigate(`/dashboard/${selectedRole}`);
-      } else {
-        navigate('/login');
-      }
-    }, 1500);
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -182,7 +261,7 @@ const Auth = () => {
               {/* Phone - only for signup */}
               {!isLogin && (
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
+                  <Label htmlFor="phone">Phone Number (Optional)</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
@@ -251,8 +330,15 @@ const Auth = () => {
               )}
 
               {/* Submit Button */}
-              <Button type="submit" size="lg" className="w-full">
-                {isLogin ? 'Sign In' : 'Create Account'}
+              <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    {isLogin ? 'Signing In...' : 'Creating Account...'}
+                  </>
+                ) : (
+                  isLogin ? 'Sign In' : 'Create Account'
+                )}
               </Button>
             </form>
 
