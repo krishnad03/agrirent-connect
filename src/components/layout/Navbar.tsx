@@ -1,13 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Tractor, ChevronDown } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Menu, X, Tractor } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -55,50 +49,12 @@ const Navbar = () => {
 
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="gap-1">
-                  Login <ChevronDown className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem asChild>
-                  <Link to="/login/owner" className="w-full cursor-pointer">
-                    Login as Owner
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/login/renter" className="w-full cursor-pointer">
-                    Login as Renter
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/login/admin" className="w-full cursor-pointer">
-                    Admin Login
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button className="gap-1">
-                  Sign Up <ChevronDown className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem asChild>
-                  <Link to="/signup/owner" className="w-full cursor-pointer">
-                    Register as Owner
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/signup/renter" className="w-full cursor-pointer">
-                    Register as Renter
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Link to="/login">
+              <Button variant="ghost">Login</Button>
+            </Link>
+            <Link to="/signup">
+              <Button>Sign Up</Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -129,27 +85,13 @@ const Navbar = () => {
                 </Link>
               ))}
               <div className="h-px bg-border my-2" />
-              <div className="flex flex-col gap-2 px-4">
-                <p className="text-sm font-medium text-muted-foreground">Login as:</p>
-                <div className="flex gap-2">
-                  <Link to="/login/owner" onClick={() => setIsOpen(false)} className="flex-1">
-                    <Button variant="outline" size="sm" className="w-full">Owner</Button>
-                  </Link>
-                  <Link to="/login/renter" onClick={() => setIsOpen(false)} className="flex-1">
-                    <Button variant="outline" size="sm" className="w-full">Renter</Button>
-                  </Link>
-                </div>
-              </div>
-              <div className="flex flex-col gap-2 px-4 mt-2">
-                <p className="text-sm font-medium text-muted-foreground">Sign up as:</p>
-                <div className="flex gap-2">
-                  <Link to="/signup/owner" onClick={() => setIsOpen(false)} className="flex-1">
-                    <Button size="sm" className="w-full">Owner</Button>
-                  </Link>
-                  <Link to="/signup/renter" onClick={() => setIsOpen(false)} className="flex-1">
-                    <Button size="sm" className="w-full">Renter</Button>
-                  </Link>
-                </div>
+              <div className="flex gap-2 px-4">
+                <Link to="/login" onClick={() => setIsOpen(false)} className="flex-1">
+                  <Button variant="outline" className="w-full">Login</Button>
+                </Link>
+                <Link to="/signup" onClick={() => setIsOpen(false)} className="flex-1">
+                  <Button className="w-full">Sign Up</Button>
+                </Link>
               </div>
             </div>
           </div>
