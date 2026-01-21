@@ -102,46 +102,48 @@ const Auth = () => {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Role Selection */}
-              <div className="space-y-3">
-                <Label>I am a</Label>
-                <RadioGroup
-                  value={selectedRole}
-                  onValueChange={(value) => setSelectedRole(value as 'renter' | 'owner')}
-                  className="grid grid-cols-2 gap-3"
-                >
-                  <div>
-                    <RadioGroupItem
-                      value="renter"
-                      id="renter"
-                      className="peer sr-only"
-                    />
-                    <Label
-                      htmlFor="renter"
-                      className="flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all"
-                    >
-                      <User className="mb-2 h-6 w-6" />
-                      <span className="font-medium">Renter</span>
-                      <span className="text-xs text-muted-foreground">I want to rent</span>
-                    </Label>
-                  </div>
-                  <div>
-                    <RadioGroupItem
-                      value="owner"
-                      id="owner"
-                      className="peer sr-only"
-                    />
-                    <Label
-                      htmlFor="owner"
-                      className="flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all"
-                    >
-                      <Tractor className="mb-2 h-6 w-6" />
-                      <span className="font-medium">Equipment Lister</span>
-                      <span className="text-xs text-muted-foreground">I have equipment</span>
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
+              {/* Role Selection - only for signup */}
+              {!isLogin && (
+                <div className="space-y-3">
+                  <Label>I am a</Label>
+                  <RadioGroup
+                    value={selectedRole}
+                    onValueChange={(value) => setSelectedRole(value as 'renter' | 'owner')}
+                    className="grid grid-cols-2 gap-3"
+                  >
+                    <div>
+                      <RadioGroupItem
+                        value="renter"
+                        id="renter"
+                        className="peer sr-only"
+                      />
+                      <Label
+                        htmlFor="renter"
+                        className="flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all"
+                      >
+                        <User className="mb-2 h-6 w-6" />
+                        <span className="font-medium">Renter</span>
+                        <span className="text-xs text-muted-foreground">I want to rent</span>
+                      </Label>
+                    </div>
+                    <div>
+                      <RadioGroupItem
+                        value="owner"
+                        id="owner"
+                        className="peer sr-only"
+                      />
+                      <Label
+                        htmlFor="owner"
+                        className="flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all"
+                      >
+                        <Tractor className="mb-2 h-6 w-6" />
+                        <span className="font-medium">Equipment Lister</span>
+                        <span className="text-xs text-muted-foreground">I have equipment</span>
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              )}
 
               {/* Name - only for signup */}
               {!isLogin && (
